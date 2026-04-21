@@ -5,65 +5,51 @@ NPM: 23081010024
 Link Repository
 https://github.com/ikhlaspp/SIB-NF-Academy-Batch-4-Full-Stack-Developer
 
-TUGAS MVC SEDERHANA & ELOQUENT DATABASE (LARAVEL)
+TUGAS MIGRATION, SEEDER, MVC & ELOQUENT DATABASE (LARAVEL)
 
-1. Mengubah konfigurasi koneksi database (.env)
-Menyesuaikan konfigurasi default Laravel agar terhubung dengan informasi database yang sudah ada (db_booksales).
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=db_booksales
-DB_USERNAME=root
-DB_PASSWORD=
+1. Membuat Migration (Tabel books dan authors)
+Menggunakan fitur Laravel Migration untuk membuat struktur tabel sesuai dengan susunan Brief yang tersedia. Pada tabel books ditambahkan foreign key yang merujuk pada tabel authors dan genres.
 
-2. Membuat file Model dengan Laravel Eloquent (app/Models/Genre.php)
-Mendefinisikan class model (berlaku untuk Genre maupun Author) yang terhubung ke tabel. Menambahkan deklarasi `public $timestamps = false;` karena skema tabel tersebut tidak menggunakan format tipe datetime bawaan (created_at & updated_at).
+2. Membuat Data Dummy dengan Seeder (database/seeders/DatabaseSeeder.php)
+Mengisi data dummy (masing-masing 10 data, memenuhi syarat minimal 5 data) untuk tabel authors dan books menggunakan class DatabaseSeeder.
+
+3. Membuat Model dan Relasi Eloquent (app/Models/Book.php & Author.php)
+Mendefinisikan class model untuk Author dan Book. Pada model Book ditambahkan relasi belongsTo ke Author dan Genre. Pada model Author ditambahkan relasi hasMany ke Book.
 <?php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
-class Genre extends Model {
+class Book extends Model {
     public $timestamps = false;
-    protected $fillable = ['name', 'description'];
-}
+    protected $fillable = ['title', 'description', 'price', 'stock', 'cover_photo', 'genre_id', 'author_id'];
 
-3. Membuat Controller (app/Http/Controllers/GenreController.php)
-Implementasi proses logika aplikasi. Controller memanggil operasi request `Genre::all()` untuk mengambil Collection Object Data MySQL dari Model, kemudian mengemasnya pada View tujuan beserta data payload array tersebut menggunakan fungsi `compact()`.
-<?php
-namespace App\Http\Controllers;
-use App\Models\Genre;
-
-class GenreController extends Controller {
-    public function index() {
-        $genres = Genre::all();
-        return view('genres', compact('genres'));
+    public function author() {
+        return $this->belongsTo(Author::class);
     }
 }
 
-4. Mendaftarkan Route (routes/web.php)
-Pengarahan endpoint atau rute aplikasi pada browser. Ketika pengguna mengakses '/genres', rute akan mengutus array class `[GenreController::class, 'index']` untuk diproses logika controllernya.
-use App\Http\Controllers\GenreController;
-Route::get('/genres', [GenreController::class, 'index']);
+4. Membuat Controller (app/Http/Controllers/BookController.php & AuthorController.php)
+Membuat fungsi index() untuk mengambil data. Pada BookController digunakan Eager Loading `Book::with(['author', 'genre'])->get()` untuk mengambil data buku beserta relasinya untuk mengatasi N+1 problem.
+<?php
+namespace App\Http\Controllers;
+use App\Models\Book;
 
-5. Menerapkan View dari Template Blade (resources/views/genres.blade.php)
-Data dikodekan oleh Model menjadi format turunan Relasional (Bukan Associative Array tipe lama melainkan Eloquent/Object) sehingga referensi nilainya menggunakan syntax Object Pointer seperti `$genre->name`. Loop dinamis `@foreach` diterapkan untuk me-render HTML Table Body berdasarkan hasil Query dari Controller.
-@extends('layouts.app')
-@section('content')
-    <h1>Daftar Genre</h1>
-    <table border="1" cellpadding="10" cellspacing="0">
-       <thead>
-            <tr><th>ID</th><th>Nama Genre</th><th>Deskripsi</th></tr>
-       </thead>
-       <tbody>
-           @foreach($genres as $genre)
-           <tr>
-               <td>{{ $genre->id }}</td>
-               <td>{{ $genre->name }}</td>
-               <td>{{ $genre->description }}</td>
-           </tr>
-           @endforeach
-       </tbody>
-    </table>
-@endsection
+class BookController extends Controller {
+    public function index() {
+        $books = Book::with(['author', 'genre'])->get();
+        return view('books', compact('books'));
+    }
+}
+
+5. Mendaftarkan Route (routes/web.php)
+Mendaftarkan endpoint URL '/books' dan '/authors' agar terhubung dengan method di controller masing-masing.
+use App\Http\Controllers\BookController;
+use App\Http\Controllers\AuthorController;
+
+Route::get('/books', [BookController::class, 'index']);
+Route::get('/authors', [AuthorController::class, 'index']);
+
+6. Menerapkan View dari Template Blade (resources/views/books.blade.php & authors.blade.php)
+Menampilkan data Book dan Author dalam format tabel HTML. Pada view books, data relasi author dan genre ditampilkan secara dinamis dengan memanggil properti relasinya (seperti `$book->author->name`). Loop dinamis @foreach diterapkan untuk me-render data ke dalam tabel.
 
 Berikut tampilan pada halaman web ketika aplikasi sedang berjalan.

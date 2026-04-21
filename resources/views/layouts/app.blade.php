@@ -21,6 +21,7 @@
         <a href="{{ url('/') }}">Home</a>
         <a href="{{ url('/genres') }}">Genres</a>
         <a href="{{ url('/authors') }}">Authors</a>
+        <a href="{{ url('/books') }}">Books</a>
     </nav>
     <div class="container">
         @yield('content')
