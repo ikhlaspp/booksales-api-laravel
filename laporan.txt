@@ -5,51 +5,22 @@ NPM: 23081010024
 Link Repository
 https://github.com/ikhlaspp/SIB-NF-Academy-Batch-4-Full-Stack-Developer
 
-TUGAS RESTFUL API (LARAVEL)
+TUGAS 4 RESTFUL API (LARAVEL)
 
-1. Membuat Migration (Tabel books dan authors)
-Menggunakan fitur Laravel Migration untuk membuat struktur tabel sesuai dengan susunan Brief yang tersedia. Pada tabel books ditambahkan foreign key yang merujuk pada tabel authors dan genres.
+1. Fitur Read All Data (Tabel Genre dan Author)
+Fungsi `index()` pada `GenreController` dan `AuthorController` mengambil seluruh data dari database dan mengembalikannya dalam format JSON menggunakan `response()->json()`. Endpoint GET `/api/genres` dan `/api/authors` digunakan untuk memanggil fungsi ini.
 
-2. Membuat Data Dummy dengan Seeder (database/seeders/DatabaseSeeder.php)
-Mengisi data dummy (masing-masing 10 data, memenuhi syarat minimal 5 data) untuk tabel authors dan books menggunakan class DatabaseSeeder.
+2. Fitur Create Data (Tabel Genre, Author, dan Book)
+Menambahkan method `store(Request $request)` pada masing-masing controller (`GenreController`, `AuthorController`, dan `BookController`). 
+Fungsi ini membaca input data, melakukan pengecekan validasi data (seperti validasi required, max, dan numeric), kemudian data tersebut disimpan ke dalam database dengan menggunakan fungsi Eloquent `create()`. Setelah berhasil disimpan, API mengembalikan respons JSON beserta status HTTP 201 Created.
 
-3. Membuat Model dan Relasi Eloquent (app/Models/Book.php & Author.php)
-Mendefinisikan class model untuk Author dan Book. Pada model Book ditambahkan relasi belongsTo ke Author dan Genre. Pada model Author ditambahkan relasi hasMany ke Book.
-<?php
-namespace App\Models;
-use Illuminate\Database\Eloquent\Model;
+3. Mendaftarkan API Route POST (routes/api.php)
+Mendaftarkan endpoints POST baru di dalam `routes/api.php` yang mengarah pada method `store()`:
+Route::post('/genres', [GenreController::class, 'store']);
+Route::post('/authors', [AuthorController::class, 'store']);
+Route::post('/books', [BookController::class, 'store']);
 
-class Book extends Model {
-    public $timestamps = false;
-    protected $fillable = ['title', 'description', 'price', 'stock', 'cover_photo', 'genre_id', 'author_id'];
-
-    public function author() {
-        return $this->belongsTo(Author::class);
-    }
-}
-
-4. Mengatur Ulang Controller Menjadi API (app/Http/Controllers/BookController.php, dll)
-Mengubah fungsi index() pada semua controller agar mengembalikan respons dalam format JSON memanfaatkan fungsi `response()->json()`.
-<?php
-namespace App\Http\Controllers;
-use App\Models\Book;
-
-class BookController extends Controller {
-    public function index() {
-        $books = Book::with(['author', 'genre'])->get();
-        return response()->json($books);
-    }
-}
-
-5. Mendaftarkan API Route (routes/api.php)
-Semua endpoint URL sekarang dipindahkan dari file routes/web.php ke file routes/api.php agar dapat diakses dengan awalan endpoint '/api' (seperti /api/books).
-use App\Http\Controllers\BookController;
-use App\Http\Controllers\AuthorController;
-use App\Http\Controllers\GenreController;
-
-Route::get('/books', [BookController::class, 'index']);
-Route::get('/authors', [AuthorController::class, 'index']);
-Route::get('/genres', [GenreController::class, 'index']);
-
-6. Testing API menggunakan POSTMAN
-File view dari sistem template Blade (authors.blade.php, books.blade.php, dan genres.blade.php) telah dihapus dari direktori proyek karena pembelajaran saat ini ditujukan secara penuh untuk membangun API. Proses testing aplikasi kini menggunakan software API Client seperti POSTMAN dengan mengakses endpoint RESTful di atas.
+4. Testing API Menggunakan POSTMAN
+Melakukan pengujian fitur RESTful API menggunakan aplikasi klien POSTMAN:
+- Request GET ke `/api/genres` dan `/api/authors` untuk mencoba fitur Read All data.
+- Request POST ke `/api/genres`, `/api/authors`, dan `/api/books` untuk fitur Create. Pengujian ini menggunakan format RAW JSON pada bagian tab 'Body' dan menambahkan `Accept: application/json` pada tab 'Headers' untuk memastikan response tetap berbentuk JSON.
