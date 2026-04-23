@@ -5,7 +5,7 @@ NPM: 23081010024
 Link Repository
 https://github.com/ikhlaspp/SIB-NF-Academy-Batch-4-Full-Stack-Developer
 
-TUGAS MIGRATION, SEEDER, MVC & ELOQUENT DATABASE (LARAVEL)
+TUGAS RESTFUL API (LARAVEL)
 
 1. Membuat Migration (Tabel books dan authors)
 Menggunakan fitur Laravel Migration untuk membuat struktur tabel sesuai dengan susunan Brief yang tersedia. Pada tabel books ditambahkan foreign key yang merujuk pada tabel authors dan genres.
@@ -28,8 +28,8 @@ class Book extends Model {
     }
 }
 
-4. Membuat Controller (app/Http/Controllers/BookController.php & AuthorController.php)
-Membuat fungsi index() untuk mengambil data. Pada BookController digunakan Eager Loading `Book::with(['author', 'genre'])->get()` untuk mengambil data buku beserta relasinya untuk mengatasi N+1 problem.
+4. Mengatur Ulang Controller Menjadi API (app/Http/Controllers/BookController.php, dll)
+Mengubah fungsi index() pada semua controller agar mengembalikan respons dalam format JSON memanfaatkan fungsi `response()->json()`.
 <?php
 namespace App\Http\Controllers;
 use App\Models\Book;
@@ -37,19 +37,19 @@ use App\Models\Book;
 class BookController extends Controller {
     public function index() {
         $books = Book::with(['author', 'genre'])->get();
-        return view('books', compact('books'));
+        return response()->json($books);
     }
 }
 
-5. Mendaftarkan Route (routes/web.php)
-Mendaftarkan endpoint URL '/books' dan '/authors' agar terhubung dengan method di controller masing-masing.
+5. Mendaftarkan API Route (routes/api.php)
+Semua endpoint URL sekarang dipindahkan dari file routes/web.php ke file routes/api.php agar dapat diakses dengan awalan endpoint '/api' (seperti /api/books).
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\GenreController;
 
 Route::get('/books', [BookController::class, 'index']);
 Route::get('/authors', [AuthorController::class, 'index']);
+Route::get('/genres', [GenreController::class, 'index']);
 
-6. Menerapkan View dari Template Blade (resources/views/books.blade.php & authors.blade.php)
-Menampilkan data Book dan Author dalam format tabel HTML. Pada view books, data relasi author dan genre ditampilkan secara dinamis dengan memanggil properti relasinya (seperti `$book->author->name`). Loop dinamis @foreach diterapkan untuk me-render data ke dalam tabel.
-
-Berikut tampilan pada halaman web ketika aplikasi sedang berjalan.
+6. Testing API menggunakan POSTMAN
+File view dari sistem template Blade (authors.blade.php, books.blade.php, dan genres.blade.php) telah dihapus dari direktori proyek karena pembelajaran saat ini ditujukan secara penuh untuk membangun API. Proses testing aplikasi kini menggunakan software API Client seperti POSTMAN dengan mengakses endpoint RESTful di atas.
