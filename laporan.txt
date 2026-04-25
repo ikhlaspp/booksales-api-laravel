@@ -5,22 +5,27 @@ NPM: 23081010024
 Link Repository
 https://github.com/ikhlaspp/SIB-NF-Academy-Batch-4-Full-Stack-Developer
 
-TUGAS 4 RESTFUL API (LARAVEL)
+TUGAS RESTFUL API (LARAVEL) - Show, Update, dan Destroy
 
-1. Fitur Read All Data (Tabel Genre dan Author)
-Fungsi `index()` pada `GenreController` dan `AuthorController` mengambil seluruh data dari database dan mengembalikannya dalam format JSON menggunakan `response()->json()`. Endpoint GET `/api/genres` dan `/api/authors` digunakan untuk memanggil fungsi ini.
+1. Fitur Show, Update, dan Destroy Data (Tabel Genre dan Author)
+Menambahkan method `show($id)`, `update(Request $request, $id)`, dan `destroy($id)` pada `GenreController` dan `AuthorController`.
+- `show` digunakan untuk mengambil dan menampilkan satu baris data spesifik berdasarkan ID.
+- `update` digunakan untuk memvalidasi input dari user dan memperbarui data yang sudah ada di database.
+- `destroy` digunakan untuk menghapus baris data di database berdasarkan ID.
 
-2. Fitur Create Data (Tabel Genre, Author, dan Book)
-Menambahkan method `store(Request $request)` pada masing-masing controller (`GenreController`, `AuthorController`, dan `BookController`). 
-Fungsi ini membaca input data, melakukan pengecekan validasi data (seperti validasi required, max, dan numeric), kemudian data tersebut disimpan ke dalam database dengan menggunakan fungsi Eloquent `create()`. Setelah berhasil disimpan, API mengembalikan respons JSON beserta status HTTP 201 Created.
+2. Validasi Data Tidak Ditemukan (404 Not Found)
+Mengatur validasi pada method `show`, `update`, dan `destroy`. Apabila data berdasarkan ID yang dikirimkan oleh klien tidak ditemukan di database, maka sistem akan mencegah terjadinya error aplikasi dengan mengembalikan response JSON berisi pesan `{"message": "Data tidak ditemukan"}` beserta kode status HTTP 404.
 
-3. Mendaftarkan API Route POST (routes/api.php)
-Mendaftarkan endpoints POST baru di dalam `routes/api.php` yang mengarah pada method `store()`:
-Route::post('/genres', [GenreController::class, 'store']);
-Route::post('/authors', [AuthorController::class, 'store']);
-Route::post('/books', [BookController::class, 'store']);
+3. Mendaftarkan API Route menggunakan apiResource (routes/api.php)
+Mengubah penulisan rute di `routes/api.php`. Rute yang sebelumnya menggunakan get dan post secara manual kini disederhanakan dengan menggunakan `Route::apiResource()`. Kode diubah menjadi:
+Route::apiResource('genres', GenreController::class);
+Route::apiResource('authors', AuthorController::class);
+Route::apiResource('books', BookController::class);
+Pendekatan ini akan mendaftarkan secara otomatis seluruh endpoint standar RESTful API (index, store, show, update, destroy).
 
 4. Testing API Menggunakan POSTMAN
-Melakukan pengujian fitur RESTful API menggunakan aplikasi klien POSTMAN:
-- Request GET ke `/api/genres` dan `/api/authors` untuk mencoba fitur Read All data.
-- Request POST ke `/api/genres`, `/api/authors`, dan `/api/books` untuk fitur Create. Pengujian ini menggunakan format RAW JSON pada bagian tab 'Body' dan menambahkan `Accept: application/json` pada tab 'Headers' untuk memastikan response tetap berbentuk JSON.
+Melakukan pengujian fitur RESTful API yang baru dibuat:
+- Request GET ke `/api/genres/{id}` dan `/api/authors/{id}` untuk mencoba fitur Show data.
+- Request PUT (atau PATCH) ke `/api/genres/{id}` dan `/api/authors/{id}` menggunakan format raw JSON untuk mencoba fitur Update data.
+- Request DELETE ke `/api/genres/{id}` dan `/api/authors/{id}` untuk mencoba fitur Destroy data.
+- Menguji output 404 (Not Found) dengan mengirimkan parameter ID fiktif atau yang sudah dihapus sebelumnya. Pengecekan dilakukan untuk memastikan fitur respons data error berfungsi sesuai yang diharapkan.
