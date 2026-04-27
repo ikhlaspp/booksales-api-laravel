@@ -5,27 +5,22 @@ NPM: 23081010024
 Link Repository
 https://github.com/ikhlaspp/SIB-NF-Academy-Batch-4-Full-Stack-Developer
 
-TUGAS RESTFUL API (LARAVEL) - Show, Update, dan Destroy
+TUGAS 6 RESTFUL API (LARAVEL) - Middleware
 
-1. Fitur Show, Update, dan Destroy Data (Tabel Genre dan Author)
-Menambahkan method `show($id)`, `update(Request $request, $id)`, dan `destroy($id)` pada `GenreController` dan `AuthorController`.
-- `show` digunakan untuk mengambil dan menampilkan satu baris data spesifik berdasarkan ID.
-- `update` digunakan untuk memvalidasi input dari user dan memperbarui data yang sudah ada di database.
-- `destroy` digunakan untuk menghapus baris data di database berdasarkan ID.
+1. Pemahaman dan Pembuatan Middleware
+Membuat middleware bernama `Admin` menggunakan perintah artisan yang bertugas sebagai penengah (interceptor) untuk mengecek hak akses/role dari pengguna HTTP Request. Middleware ini memastikan bahwa pengguna yang sedang login (`$request->user()`) memiliki role bertitel `admin`. Jika bukan, akses ditolak dan disajikan JSON berisi pesan "Unauthorized or Forbidden" (403).
 
-2. Validasi Data Tidak Ditemukan (404 Not Found)
-Mengatur validasi pada method `show`, `update`, dan `destroy`. Apabila data berdasarkan ID yang dikirimkan oleh klien tidak ditemukan di database, maka sistem akan mencegah terjadinya error aplikasi dengan mengembalikan response JSON berisi pesan `{"message": "Data tidak ditemukan"}` beserta kode status HTTP 404.
+2. Pengaturan Routing API (routes/api.php)
+Mengatur routing terkait Author, Genre, dan Book menjadi dua buah kelompok hak akses kontrol menggunakan `apiResource()`:
+- Rute Publik: Method/Aksi `index` (Read All) dan `show` dibebaskan untuk publik sesuai kriteria tugas menggunakan `.only(['index', 'show'])`. Semua pengunjung tanpa login tetap bisa melihat data.
+- Rute Admin: Method/Aksi `store` (Create), `update`, dan `destroy` dilindungi di bawah grup middleware pendeteksi autentikasi `['auth:sanctum', Admin::class]`. Hanya admin yang terkualifikasi dan ber-token sah yang dapat mengeksekusi manipulasi data.
 
-3. Mendaftarkan API Route menggunakan apiResource (routes/api.php)
-Mengubah penulisan rute di `routes/api.php`. Rute yang sebelumnya menggunakan get dan post secara manual kini disederhanakan dengan menggunakan `Route::apiResource()`. Kode diubah menjadi:
-Route::apiResource('genres', GenreController::class);
-Route::apiResource('authors', AuthorController::class);
-Route::apiResource('books', BookController::class);
-Pendekatan ini akan mendaftarkan secara otomatis seluruh endpoint standar RESTful API (index, store, show, update, destroy).
+3. Konfigurasi Autentikasi dan Token Sanctum
+Membuat `AuthController` untuk menangani *endpoint* login (`POST /api/login`) sehingga sistem dapat menerbitkan token JWT bagi user berdasarkan kredensial (email & password) yang dicocokkan dengan data pada tabel `users`. Model `User` juga sudah dilengkapi dan didukung trait `HasApiTokens` dari Laravel Sanctum sehingga token `Bearer` siap digunakan.
 
-4. Testing API Menggunakan POSTMAN
-Melakukan pengujian fitur RESTful API yang baru dibuat:
-- Request GET ke `/api/genres/{id}` dan `/api/authors/{id}` untuk mencoba fitur Show data.
-- Request PUT (atau PATCH) ke `/api/genres/{id}` dan `/api/authors/{id}` menggunakan format raw JSON untuk mencoba fitur Update data.
-- Request DELETE ke `/api/genres/{id}` dan `/api/authors/{id}` untuk mencoba fitur Destroy data.
-- Menguji output 404 (Not Found) dengan mengirimkan parameter ID fiktif atau yang sudah dihapus sebelumnya. Pengecekan dilakukan untuk memastikan fitur respons data error berfungsi sesuai yang diharapkan.
+4. Testing Aplikasi Menggunakan POSTMAN
+Melakukan berbagai testing operasional simulasi menggunakan aplikasi klien POSTMAN:
+- Menguji akses Read All & Show tanpa token: Memastikan *response* data mengembalikan daftar *Author*, *Genre*, dan *Book* sukses.
+- Mensimulasikan pengguna sebagai Customer & Admin via `POST /api/login`: Mendapatkan Token Akses masing-masing pihak.
+- Menguji API Create, Update, dan Destroy tanpa login atau berbekal Token milik *Customer*: Memastikan sistem menargetkan proteksi error *Blocked/403/Forbidden*.
+- Menguji API Create, Update, dan Destroy dengan Token milik *Admin*: Uji coba berhasil menembus autentikasi serta *middleware* untuk menambahkan (via form JSON), mengubah, atau menghapus entitas data.
