@@ -14,13 +14,10 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->string('order_number');
-            $table->unsignedBigInteger('customer_id')->nullable();
-            $table->unsignedBigInteger('book_id')->nullable();
+            $table->foreignId('customer_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('book_id')->nullable()->constrained('books')->onDelete('cascade');
             $table->decimal('total_amount', 10, 2);
-            $table->timestamps(); // create_at and updated_at
-            
-            $table->foreign('customer_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('book_id')->references('id')->on('books')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

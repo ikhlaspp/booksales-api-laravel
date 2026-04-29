@@ -29,7 +29,43 @@ class BookController extends Controller
 
         return response()->json([
             'message' => 'Book created successfully',
-            'data' => $book
+            'data' => $book->load(['author', 'genre'])
         ], 201);
+    }
+
+    public function show($id)
+    {
+        $book = Book::with(['author', 'genre'])->findOrFail($id);
+        return response()->json($book);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $book = Book::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'sometimes|required|numeric|min:0',
+            'stock' => 'sometimes|required|integer|min:0',
+            'cover_photo' => 'nullable|string|max:255',
+            'genre_id' => 'nullable|exists:genres,id',
+            'author_id' => 'nullable|exists:authors,id',
+        ]);
+
+        $book->update($validatedData);
+
+        return response()->json([
+            'message' => 'Book updated successfully',
+            'data' => $book->load(['author', 'genre'])
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $book = Book::findOrFail($id);
+        $book->delete();
+
+        return response()->json(['message' => 'Book deleted successfully']);
     }
 }
