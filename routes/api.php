@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Middleware\Admin;
 use App\Http\Middleware\Customer;
 
@@ -25,6 +26,7 @@ Route::middleware(['auth:sanctum', Admin::class])->group(function () {
     Route::apiResource('authors', AuthorController::class)->except(['index', 'show']);
     Route::apiResource('books', BookController::class)->except(['index', 'show']);
     Route::apiResource('transactions', TransactionController::class)->only(['index', 'destroy']);
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 });
 
 Route::middleware(['auth:sanctum', Customer::class])->group(function () {
