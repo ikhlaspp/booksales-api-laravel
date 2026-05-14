@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('order_number');
+            $table->string('order_number')->unique();
             $table->foreignId('customer_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('book_id')->nullable()->constrained('books')->onDelete('cascade');
             $table->decimal('total_amount', 10, 2);
+            $table->enum('status', ['pending', 'dibayar', 'dikirim', 'selesai', 'dibatalkan'])->default('pending');
+            $table->string('snap_token')->nullable();
+            $table->string('payment_type')->nullable();
             $table->timestamps();
         });
     }

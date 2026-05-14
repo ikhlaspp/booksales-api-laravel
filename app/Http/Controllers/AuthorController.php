@@ -7,10 +7,13 @@ use Illuminate\Http\Request;
 
 class AuthorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $authors = Author::all();
-        return response()->json($authors);
+        $query = Author::query();
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        return response()->json($query->paginate($request->per_page ?? 10));
     }
 
     public function store(Request $request)

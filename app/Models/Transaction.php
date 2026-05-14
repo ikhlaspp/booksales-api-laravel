@@ -10,7 +10,8 @@ class Transaction extends Model
         'order_number',
         'customer_id',
         'book_id',
-        'total_amount'
+        'total_amount',
+        'status'
     ];
 
     public function customer()

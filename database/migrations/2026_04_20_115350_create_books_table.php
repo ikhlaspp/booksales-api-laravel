@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('cover_photo')->nullable();
             $table->foreignId('genre_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('author_id')->nullable()->constrained()->onDelete('set null');
+            $table->timestamps();
         });
     }
 

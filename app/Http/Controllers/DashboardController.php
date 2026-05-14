@@ -5,24 +5,27 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\Transaction;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Menghitung data statistik
-        $totalRevenue = DB::table('transactions')->sum('total_amount');
-        $totalCustomers = DB::table('users')->where('role', 'customer')->count();
-        $totalBooks = DB::table('books')->sum('stock'); 
+        $totalUsers = DB::table('users')->count();
+        $totalBooks = DB::table('books')->count();
         $totalTransactions = DB::table('transactions')->count();
+        $totalRevenue = DB::table('transactions')->sum('total_amount');
 
         $recentTransactions = DB::table('transactions')
             ->join('users', 'transactions.customer_id', '=', 'users.id')
+            ->leftJoin('books', 'transactions.book_id', '=', 'books.id')
             ->select(
-                'transactions.order_number as id', 
-                'users.name as user', 
-                'transactions.created_at as date', 
-                'transactions.total_amount as amount'
+                'transactions.order_number as id',
+                'users.name as user',
+                'books.title as book',
+                'transactions.created_at as date',
+                'transactions.total_amount as amount',
+                'transactions.status as status'
             )
             ->orderBy('transactions.created_at', 'desc')
             ->limit(5)
@@ -31,23 +34,26 @@ class DashboardController extends Controller
                 return [
                     'id' => $transaction->id,
                     'user' => $transaction->user,
+                    'book' => $transaction->book ?? '-',
                     'date' => Carbon::parse($transaction->date)->format('d M Y'),
                     'amount' => 'Rp ' . number_format($transaction->amount, 0, ',', '.'),
-                    'status' => 'Completed', // Status dummy untuk saat ini
+                    'status' => ucfirst($transaction->status ?? 'pending'),
                 ];
             });
 
-        // Mengembalikan response JSON yang formatnya sesuai dengan di React
+        $salesTrend = Transaction::selectRaw('DATE_FORMAT(created_at, "%b") as month, COUNT(*) as terbeli')
+            ->where('created_at', '>=', Carbon::now()->subMonths(6))
+            ->groupBy('month')
+            ->orderByRaw('MIN(created_at)')
+            ->get();
+
         return response()->json([
-            'data' => [
-                'stats' => [
-                    ['name' => 'Total Pendapatan', 'stat' => 'Rp ' . number_format($totalRevenue, 0, ',', '.'), 'icon' => 'cash'],
-                    ['name' => 'Total Pelanggan', 'stat' => $totalCustomers, 'icon' => 'users'],
-                    ['name' => 'Stok Buku Tersedia', 'stat' => $totalBooks, 'icon' => 'book'],
-                    ['name' => 'Total Transaksi', 'stat' => $totalTransactions, 'icon' => 'clock'],
-                ],
-                'recentTransactions' => $recentTransactions
-            ]
+            'total_users' => $totalUsers,
+            'total_books' => $totalBooks,
+            'total_transactions' => $totalTransactions,
+            'revenue' => 'Rp ' . number_format($totalRevenue, 0, ',', '.'),
+            'recent_transactions' => $recentTransactions,
+            'sales_trend' => $salesTrend,
         ]);
     }
 }

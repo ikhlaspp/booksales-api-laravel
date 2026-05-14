@@ -7,10 +7,13 @@ use Illuminate\Http\Request;
 
 class GenreController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $genres = Genre::all();
-        return response()->json($genres);
+        $query = Genre::query();
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        return response()->json($query->paginate($request->per_page ?? 10));
     }
 
     public function store(Request $request)

@@ -7,10 +7,19 @@ use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $books = Book::with(['author', 'genre'])->get();
-        return response()->json($books);
+        $query = Book::with(['author', 'genre']);
+
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('genre_id')) {
+            $query->where('genre_id', $request->genre_id);
+        }
+
+        return response()->json($query->paginate($request->per_page ?? 10));
     }
 
     public function store(Request $request)
