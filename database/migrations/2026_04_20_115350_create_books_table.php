@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
-            $table->integer('stock');
+            $table->integer('stock')->default(0);
+            $table->string('file_path')->nullable();
             $table->string('cover_photo')->nullable();
             $table->foreignId('genre_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('author_id')->nullable()->constrained()->onDelete('set null');

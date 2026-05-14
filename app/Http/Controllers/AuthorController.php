@@ -9,7 +9,7 @@ class AuthorController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Author::query();
+        $query = Author::withCount('books');
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }

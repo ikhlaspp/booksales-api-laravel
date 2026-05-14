@@ -11,7 +11,15 @@ class Transaction extends Model
         'customer_id',
         'book_id',
         'total_amount',
-        'status'
+        'subtotal',
+        'tax_amount',
+        'shipping_cost',
+        'shipping_address',
+        'city',
+        'postal_code',
+        'status',
+        'snap_token',
+        'payment_type'
     ];
 
     public function customer()
@@ -22,5 +30,10 @@ class Transaction extends Model
     public function book()
     {
         return $this->belongsTo(Book::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(TransactionItem::class);
     }
 }

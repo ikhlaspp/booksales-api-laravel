@@ -13,6 +13,7 @@ class Book extends Model
         'description',
         'price',
         'stock',
+        'file_path',
         'cover_photo',
         'genre_id',
         'author_id'

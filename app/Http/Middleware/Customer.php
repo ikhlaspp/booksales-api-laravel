@@ -15,7 +15,7 @@ class Customer
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && $request->user()->role === 'customer') {
+        if ($request->user() && in_array($request->user()->role, ['user', 'customer'])) {
             return $next($request);
         }
 

@@ -57,6 +57,7 @@ class BookController extends Controller
             'description' => 'nullable|string',
             'price' => 'sometimes|required|numeric|min:0',
             'stock' => 'sometimes|required|integer|min:0',
+            'file_path' => 'nullable|string',
             'cover_photo' => 'nullable|string|max:255',
             'genre_id' => 'nullable|exists:genres,id',
             'author_id' => 'nullable|exists:authors,id',

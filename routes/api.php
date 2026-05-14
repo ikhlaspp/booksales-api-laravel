@@ -42,5 +42,9 @@ Route::middleware(['auth:sanctum', Customer::class])->group(function () {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/user/transactions', [TransactionController::class, 'userTransactions']);
     Route::apiResource('transactions', TransactionController::class)->only(['update', 'show']);
 });
+
+// Midtrans Notification Callback (no auth needed - server-to-server)
+Route::post('/midtrans/callback', [TransactionController::class, 'midtransCallback']);
