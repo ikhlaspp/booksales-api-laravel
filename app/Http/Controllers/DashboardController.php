@@ -14,7 +14,7 @@ class DashboardController extends Controller
         $totalUsers = DB::table('users')->count();
         $totalBooks = DB::table('books')->count();
         $totalTransactions = DB::table('transactions')->count();
-        $totalRevenue = DB::table('transactions')->sum('total_amount');
+        $totalRevenue = DB::table('transactions')->where('status', 'selesai')->sum('total_amount');
 
         $recentTransactions = DB::table('transactions')
             ->join('users', 'transactions.customer_id', '=', 'users.id')
