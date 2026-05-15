@@ -34,4 +34,17 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
         ]);
     }
+
+    public function updateProfile(Request $request)
+    {
+        $validated = $request->validate([
+            'address'     => 'nullable|string|max:255',
+            'city'        => 'nullable|string|max:100',
+            'postal_code' => 'nullable|string|max:20',
+        ]);
+
+        $request->user()->update($validated);
+
+        return response()->json($request->user());
+    }
 }
