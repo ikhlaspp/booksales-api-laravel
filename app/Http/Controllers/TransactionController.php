@@ -33,8 +33,23 @@ class TransactionController extends Controller
 
     public function userTransactions(Request $request)
     {
-        $query = Transaction::with(['book', 'items.book'])->where('customer_id', $request->user()->id)->latest();
-        return response()->json($query->paginate($request->per_page ?? 10));
+        $query = Transaction::with(['book', 'items.book'])
+            ->where('customer_id', $request->user()->id)
+            ->latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('order_number', 'like', "%{$search}%")
+                  ->orWhereHas('items.book', fn($b) => $b->where('title', 'like', "%{$search}%"));
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        return response()->json($query->paginate(10));
     }
 
     /**
@@ -44,12 +59,9 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'items' => 'required|array|min:1',
-            'items.*.book_id' => 'required|exists:books,id',
+            'items'            => 'required|array|min:1',
+            'items.*.book_id'  => 'required|exists:books,id',
             'items.*.quantity' => 'required|integer|min:1',
-            'shipping_address' => 'required|string',
-            'city' => 'required|string',
-            'postal_code' => 'required|string',
         ]);
 
         // Ambil semua buku dari database untuk menghitung total secara aman
@@ -98,17 +110,14 @@ class TransactionController extends Controller
             // Simpan transaksi utama (book_id diisi dengan item pertama untuk backward compatibility)
             $firstBookId = $validated['items'][0]['book_id'];
             $tx = Transaction::create([
-                'order_number' => $orderNumber,
-                'customer_id' => $user->id,
-                'book_id' => $firstBookId,
-                'subtotal' => $subtotalAmount,
-                'tax_amount' => $taxAmount,
+                'order_number'  => $orderNumber,
+                'customer_id'   => $user->id,
+                'book_id'       => $firstBookId,
+                'subtotal'      => $subtotalAmount,
+                'tax_amount'    => $taxAmount,
                 'shipping_cost' => $shippingCost,
-                'total_amount' => $grossAmount,
-                'shipping_address' => $validated['shipping_address'],
-                'city' => $validated['city'],
-                'postal_code' => $validated['postal_code'],
-                'status' => 'pending',
+                'total_amount'  => $grossAmount,
+                'status'        => 'pending',
             ]);
 
             // Simpan item detail
