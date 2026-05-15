@@ -11,6 +11,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\AdminConversationController;
 use App\Http\Middleware\Admin;
 use App\Http\Middleware\Customer;
 use App\Models\User;
@@ -37,6 +38,12 @@ Route::middleware(['auth:sanctum', Admin::class])->group(function () {
 
     // Users management (read-only for admin)
     Route::get('/users', [UserController::class, 'index']);
+
+    // Admin conversation / inbox
+    Route::get('/admin/conversations', [AdminConversationController::class, 'index']);
+    Route::get('/admin/conversations/{id}', [AdminConversationController::class, 'show']);
+    Route::post('/admin/conversations/{id}/messages', [AdminConversationController::class, 'reply']);
+    Route::put('/admin/conversations/{id}/read', [AdminConversationController::class, 'markRead']);
 });
 
 Route::middleware(['auth:sanctum', Customer::class])->group(function () {
