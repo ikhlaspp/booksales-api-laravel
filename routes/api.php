@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ConversationController;
 use App\Http\Middleware\Admin;
 use App\Http\Middleware\Customer;
 use App\Models\User;
@@ -45,6 +46,10 @@ Route::middleware(['auth:sanctum', Customer::class])->group(function () {
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user/transactions', [TransactionController::class, 'userTransactions']);
     Route::apiResource('transactions', TransactionController::class)->only(['update', 'show']);
+    Route::get('/conversations', [ConversationController::class, 'show']);
+    Route::post('/conversations/messages', [ConversationController::class, 'sendMessage']);
+    Route::get('/conversations/messages', [ConversationController::class, 'poll']);
+    Route::put('/conversations/read', [ConversationController::class, 'markRead']);
 });
 
 // Midtrans Notification Callback (no auth needed - server-to-server)
