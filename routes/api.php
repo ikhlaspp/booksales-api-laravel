@@ -9,6 +9,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ContactController;
 use App\Http\Middleware\Admin;
 use App\Http\Middleware\Customer;
 use App\Models\User;
@@ -20,7 +21,6 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 use App\Http\Controllers\PublicCatalogController;
-use App\Http\Controllers\ContactController;
 
 Route::get('/catalog', [PublicCatalogController::class, 'index']);
 Route::apiResource('genres', GenreController::class)->only(['index', 'show']);
