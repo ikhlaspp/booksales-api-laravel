@@ -16,9 +16,6 @@ return new class extends Migration
             $table->string('order_number')->unique();
             $table->foreignId('customer_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('book_id')->nullable()->constrained('books')->onDelete('cascade');
-            $table->text('shipping_address')->nullable();
-            $table->string('city')->nullable();
-            $table->string('postal_code')->nullable();
             $table->decimal('subtotal', 10, 2)->nullable();
             $table->decimal('tax_amount', 10, 2)->nullable();
             $table->decimal('shipping_cost', 10, 2)->nullable();

@@ -14,9 +14,6 @@ class Transaction extends Model
         'subtotal',
         'tax_amount',
         'shipping_cost',
-        'shipping_address',
-        'city',
-        'postal_code',
         'status',
         'snap_token',
         'payment_type'
