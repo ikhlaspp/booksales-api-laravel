@@ -20,6 +20,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 use App\Http\Controllers\PublicCatalogController;
+use App\Http\Controllers\ContactController;
 
 Route::get('/catalog', [PublicCatalogController::class, 'index']);
 Route::apiResource('genres', GenreController::class)->only(['index', 'show']);
@@ -48,3 +49,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 // Midtrans Notification Callback (no auth needed - server-to-server)
 Route::post('/midtrans/callback', [TransactionController::class, 'midtransCallback']);
+
+// General contact form (public, no auth)
+Route::post('/contact', [ContactController::class, 'store']);
