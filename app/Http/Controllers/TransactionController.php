@@ -265,9 +265,6 @@ class TransactionController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
         $validated = $request->validate([
-            'order_number' => 'sometimes|string',
-            'book_id' => 'sometimes|exists:books,id',
-            'total_amount' => 'sometimes|numeric',
             'status' => 'sometimes|in:pending,dibayar,dikirim,selesai,dibatalkan',
         ]);
 
