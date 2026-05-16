@@ -45,6 +45,10 @@ class AuthController extends Controller
             'postal_code' => 'nullable|string|max:20',
         ]);
 
+        if (empty($validated)) {
+            return response()->json(['message' => 'Tidak ada field yang diubah.'], 422);
+        }
+
         $request->user()->update($validated);
 
         return response()->json($request->user()->fresh());
