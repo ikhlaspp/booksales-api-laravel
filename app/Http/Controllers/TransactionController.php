@@ -264,11 +264,22 @@ class TransactionController extends Controller
         if ($transaction->customer_id !== $request->user()->id && $request->user()->role !== 'admin') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
+
         $validated = $request->validate([
             'status' => 'sometimes|in:pending,dibayar,dikirim,selesai,dibatalkan',
         ]);
 
+        $previousStatus = $transaction->status;
+
         $transaction->update($validated);
+
+        if (isset($validated['status']) && $validated['status'] === 'dibayar' && $previousStatus !== 'dibayar') {
+            foreach ($transaction->items as $item) {
+                Book::where('id', $item->book_id)
+                    ->where('stock', '>=', $item->quantity)
+                    ->decrement('stock', $item->quantity);
+            }
+        }
 
         return response()->json($transaction->load(['customer', 'book', 'items.book']));
     }

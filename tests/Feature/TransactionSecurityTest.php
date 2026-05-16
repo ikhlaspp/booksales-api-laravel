@@ -125,4 +125,42 @@ class TransactionSecurityTest extends TestCase
 
         $response->assertOk();
     }
+
+    public function test_stock_decrements_when_user_updates_status_to_dibayar(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $genre = Genre::create(['name' => 'Fiksi']);
+        $author = Author::create(['name' => 'Penulis']);
+        $book = Book::create([
+            'title' => 'Buku Stock',
+            'price' => 100000,
+            'stock' => 5,
+            'genre_id' => $genre->id,
+            'author_id' => $author->id,
+        ]);
+
+        $tx = Transaction::create([
+            'order_number' => 'BS-STOCK-' . uniqid(),
+            'customer_id' => $user->id,
+            'book_id' => $book->id,
+            'subtotal' => 100000,
+            'tax_amount' => 11000,
+            'shipping_cost' => 10000,
+            'total_amount' => 121000,
+            'status' => 'pending',
+        ]);
+
+        TransactionItem::create([
+            'transaction_id' => $tx->id,
+            'book_id' => $book->id,
+            'quantity' => 2,
+            'price' => 100000,
+        ]);
+
+        $this->putJson("/api/transactions/{$tx->id}", ['status' => 'dibayar']);
+
+        $this->assertEquals(3, $book->fresh()->stock); // 5 - 2 = 3
+    }
 }
