@@ -41,7 +41,12 @@ class DashboardController extends Controller
                 ];
             });
 
-        $salesTrend = Transaction::selectRaw('DATE_FORMAT(created_at, "%b") as month, COUNT(*) as terbeli')
+        $driver = DB::connection()->getDriverName();
+        $monthExpr = $driver === 'sqlite'
+            ? "strftime('%m', created_at) as month"
+            : "DATE_FORMAT(created_at, \"%b\") as month";
+
+        $salesTrend = Transaction::selectRaw("{$monthExpr}, COUNT(*) as terbeli")
             ->where('created_at', '>=', Carbon::now()->subMonths(6))
             ->groupBy('month')
             ->orderByRaw('MIN(created_at)')
