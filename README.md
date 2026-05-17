@@ -1,58 +1,125 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# BookSales API — Backend Laravel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> REST API resmi untuk aplikasi **BookSales / PustakaIkhlas** — toko buku online pasar Indonesia. Dibangun dengan **Laravel 13**, **PHP 8.3+**, **Laravel Sanctum**, **MySQL**, dan terintegrasi dengan **Midtrans Snap (Sandbox)** untuk pembayaran dalam **Rupiah (IDR)**.
 
-## About Laravel
+API ini melayani frontend React (`booksales/`) dan menangani: autentikasi, katalog buku, manajemen genre & penulis, keranjang & checkout, pembayaran Midtrans, manajemen transaksi, dashboard admin, fitur chat user↔admin, dan formulir kontak.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## ⚡ Quick Start
 
 ```bash
-composer require laravel/boost --dev
+# 1. Install dependency
+composer install
+npm install
 
-php artisan boost:install
+# 2. Setup environment
+cp .env.example .env
+php artisan key:generate
+
+# 3. Konfigurasi DB di .env (default: SQLite — ganti ke MySQL jika perlu)
+#    DB_CONNECTION=mysql
+#    DB_DATABASE=db_booksales
+
+# 4. Jalankan migration + seeder
+php artisan migrate --seed
+
+# 5. Buat symlink storage (untuk akses gambar cover & lampiran chat)
+php artisan storage:link
+
+# 6. Konfigurasi Midtrans Sandbox di .env
+#    MIDTRANS_SERVER_KEY=<YOUR_MIDTRANS_SERVER_KEY>
+#    MIDTRANS_CLIENT_KEY=<YOUR_MIDTRANS_CLIENT_KEY>
+#    MIDTRANS_IS_PRODUCTION=false
+
+# 7. Jalankan server (pilih salah satu)
+php artisan serve                # Server biasa @ http://localhost:8000
+composer run dev                 # Server + queue + log viewer + vite (parallel)
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Server siap di **`http://localhost:8000`**. Endpoint root API: **`http://localhost:8000/api`**.
 
-## Contributing
+### Akun default seeder
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Email | Password | Role |
+|-------|----------|------|
+| `admin@toko.com` | `adminpass` | admin |
+| `admin2@toko.com` | `adminpass2` | admin |
+| `budi@email.com` | `password123` | user |
+| `siti@email.com` | `rahasia321` | user |
 
-## Code of Conduct
+(Total 20 user dummy + 50 buku + 20 transaksi historis terseed di [`DatabaseSeeder.php`](database/seeders/DatabaseSeeder.php).)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 📚 Dokumentasi Lengkap
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Semua dokumentasi mendetail ada di folder [`docs/`](docs/). Mulai dari sini sesuai kebutuhan Anda:
 
-## License
+| # | Dokumen | Untuk Anda yang ingin... |
+|---|---------|--------------------------|
+| 01 | [Architecture](docs/01-ARCHITECTURE.md) | Memahami stack, struktur folder, lifecycle request, dan keputusan desain |
+| 02 | [Setup](docs/02-SETUP.md) | Setup lingkungan dev di Windows/Mac/Linux + konfigurasi `.env` lengkap |
+| 03 | [Database](docs/03-DATABASE.md) | Skema 10 tabel, relasi, ERD, migration timeline, seeder breakdown |
+| 04 | [Authentication](docs/04-AUTHENTICATION.md) | Cara kerja Sanctum, middleware `admin`/`customer`, alur login & token |
+| 05 | [API Reference](docs/05-API-REFERENCE.md) | Daftar **semua** endpoint + request/response sample + error format |
+| 06 | [Midtrans Integration](docs/06-MIDTRANS-INTEGRATION.md) | Setup sandbox, alur Snap, callback signature verification, decode status |
+| 07 | [Chat System](docs/07-CHAT-SYSTEM.md) | Arsitektur chat (Conversation, Message), polling, attachment & tx reference |
+| 08 | [Console Commands](docs/08-CONSOLE-COMMANDS.md) | Scheduled job `transactions:cancel-expired` & cara menjalankan scheduler |
+| 09 | [Features](docs/09-FEATURES.md) | Penjelasan per-fitur (katalog, keranjang, checkout, dashboard, contact, dll) |
+| 10 | [Troubleshooting](docs/10-TROUBLESHOOTING.md) | Masalah umum + cara debug pakai logs, pail, dan tinker |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 🛠️ Composer Scripts
+
+```bash
+composer run setup       # First-time setup (install + key + migrate + npm)
+composer run dev         # Concurrent: server + queue + log viewer + vite
+composer run test        # Jalankan PHPUnit test suite
+```
+
+---
+
+## 🗺️ Cheat-sheet Endpoint Cepat
+
+| Method | Endpoint | Auth | Tujuan |
+|--------|----------|------|--------|
+| `POST` | `/api/login` | — | Dapatkan Bearer token |
+| `POST` | `/api/register` | — | Daftar user baru |
+| `GET` | `/api/catalog` | — | Katalog publik (search, genre filter, paginated) |
+| `GET` | `/api/books/{id}` | — | Detail buku |
+| `POST` | `/api/transactions` | Customer | Checkout + dapat `snap_token` |
+| `POST` | `/api/midtrans/callback` | — (webhook) | Notifikasi pembayaran dari Midtrans |
+| `GET` | `/api/dashboard` | Admin | Stats homepage admin |
+| `POST` | `/api/contact` | — | Submit formulir kontak |
+| `GET` | `/api/conversations` | Auth | Chat user dengan admin |
+
+Daftar lengkap: lihat [docs/05-API-REFERENCE.md](docs/05-API-REFERENCE.md).
+
+---
+
+## 🚦 Aturan Project (untuk Developer)
+
+1. **Currency** selalu IDR (`Rp` + format `id-ID`)
+2. **Pajak** fixed 11%, **shipping** fixed Rp 10.000 (logic di backend, jangan dipindah ke frontend)
+3. **Roles** hanya `admin` dan `user`
+4. **Status transaksi** hanya: `pending`, `dibayar`, `dikirim`, `selesai`, `dibatalkan`
+5. **Midtrans** WAJIB pakai mode sandbox di development
+6. Untuk menambah fitur baru, ikuti pola yang ada di `app/Http/Controllers/` dan tambahkan route di `routes/api.php`
+7. Jangan menggunakan session-based auth — semua endpoint protected pakai Bearer token via Sanctum
+
+Detail aturan: lihat [docs/01-ARCHITECTURE.md](docs/01-ARCHITECTURE.md) dan [`CLAUDE.md`](../CLAUDE.md) di root project.
+
+---
+
+## 🔗 Repo Frontend
+
+Frontend React-nya ada di folder kakak: **`../booksales/`**.
+Lihat [`../booksales/README.md`](../booksales/README.md) untuk setup-nya.
+
+---
+
+## 📜 Lisensi
+
+MIT
